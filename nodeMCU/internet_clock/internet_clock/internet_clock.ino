@@ -35,6 +35,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include <time.h>
 
 #include <SPI.h>
@@ -70,7 +72,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define TIMEZONE_OFFSET     3                                   // CET
 #define DST_OFFSET          0                                   // CEST
-#define UPDATE_CYCLE        (10 * 1000)                          // every second
+#define UPDATE_CYCLE        (1 * 1000)                          // every second
 
 #define SERVICE_PORT        80                                  // HTTP port
 
@@ -90,6 +92,10 @@ MDNSResponder::hMDNSService   hMDNSService            = 0;        // The handle 
 
 // HTTP server at port 'SERVICE_PORT' will respond to HTTP requests
 ESP8266WebServer              server(SERVICE_PORT);
+
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", TIMEZONE_OFFSET);
 
 /*
    getTimeString
@@ -222,7 +228,7 @@ void handleHTTPRequest() {
   s = "<!DOCTYPE HTML>\r\n<html>Hello from ";
   s += WiFi.hostname() + " at " + WiFi.localIP().toString();
   // Simple addition of the current time
-  s += "\r\nCurrent time is: ";
+  s += "\r\n<br>Current time is: ";
   s += getTimeString();
   // done :-)
   s += "</html>\r\n\r\n";
@@ -232,18 +238,16 @@ void handleHTTPRequest() {
 
 void testdrawstyles(void) {
   display.clearDisplay();
-
   display.setTextSize(2);             // Normal 1:1 pixel scale
   display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
   display.println(ssid);
   display.setTextSize(1);
   display.println(WiFi.localIP());
-
-  //display.setTextSize(2);             // Draw 2X-scale text
-  //display.setTextColor(WHITE);
-  //display.print(F("0x")); display.println(0xDEADBEEF, HEX);
-
+  display.println();
+  display.println(daysOfTheWeek[timeClient.getDay()]);
+  display.setTextSize(2);
+  display.print(timeClient.getHours()); display.print(":"); display.print(timeClient.getMinutes()); display.print(":"); display.println(timeClient.getSeconds());
   display.display();
 }
 
@@ -254,6 +258,7 @@ void setup(void) {
   Serial.begin(115200);
 
   // Sync clock
+  timeClient.begin();
   setClock();
 
   // Setup MDNS responder
@@ -326,7 +331,8 @@ void loop(void) {
 
   static esp8266::polledTimeout::periodicMs timeout(UPDATE_CYCLE);
   if (timeout.expired()) {
-
+    timeClient.update();
+    testdrawstyles();
     if (hMDNSService) {
       // Just trigger a new MDNS announcement, this will lead to a call to
       // 'MDNSDynamicServiceTxtCallback', which will update the time TXT item
