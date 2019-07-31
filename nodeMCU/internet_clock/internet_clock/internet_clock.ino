@@ -233,20 +233,18 @@ void handleHTTPRequest() {
 void testdrawstyles(void) {
   display.clearDisplay();
 
-  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextSize(2);             // Normal 1:1 pixel scale
   display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
-  display.println(F("Hello, world!"));
+  display.println(ssid);
+  display.setTextSize(1);
+  display.println(WiFi.localIP());
 
-  display.setTextColor(BLACK, WHITE); // Draw 'inverse' text
-  display.println(3.141592);
-
-  display.setTextSize(2);             // Draw 2X-scale text
-  display.setTextColor(WHITE);
-  display.print(F("0x")); display.println(0xDEADBEEF, HEX);
+  //display.setTextSize(2);             // Draw 2X-scale text
+  //display.setTextColor(WHITE);
+  //display.print(F("0x")); display.println(0xDEADBEEF, HEX);
 
   display.display();
-  delay(2000);
 }
 
 /*
@@ -254,6 +252,27 @@ void testdrawstyles(void) {
 */
 void setup(void) {
   Serial.begin(115200);
+
+  // Sync clock
+  setClock();
+
+  // Setup MDNS responder
+  MDNS.setHostProbeResultCallback(hostProbeResult);
+  // Init the (currently empty) host domain string with 'esp8266'
+  if ((!MDNSResponder::indexDomain(pcHostDomain, 0, "esp8266")) ||
+      (!MDNS.begin(pcHostDomain))) {
+    Serial.println("Error setting up MDNS responder!");
+    while (1) { // STOP
+      delay(1000);
+    }
+  }
+  Serial.println("MDNS responder started");
+
+  // Setup HTTP server
+  server.on("/", handleHTTPRequest);
+  server.begin();
+  Serial.println("HTTP server started");
+
   Wire.begin(0,2);  //установка соответствия контактов дисплея SDA->D3, SCL->D4
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
@@ -293,25 +312,6 @@ void setup(void) {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // Sync clock
-  setClock();
-
-  // Setup MDNS responder
-  MDNS.setHostProbeResultCallback(hostProbeResult);
-  // Init the (currently empty) host domain string with 'esp8266'
-  if ((!MDNSResponder::indexDomain(pcHostDomain, 0, "esp8266")) ||
-      (!MDNS.begin(pcHostDomain))) {
-    Serial.println("Error setting up MDNS responder!");
-    while (1) { // STOP
-      delay(1000);
-    }
-  }
-  Serial.println("MDNS responder started");
-
-  // Setup HTTP server
-  server.on("/", handleHTTPRequest);
-  server.begin();
-  Serial.println("HTTP server started");
 }
 
 /*
