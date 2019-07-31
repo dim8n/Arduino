@@ -6,6 +6,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <time.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -22,6 +23,8 @@ const long utcOffsetInSeconds = 3*3600;
 #define UPDATE_CYCLE        (1 * 1000)
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+int days, months, years;
+String formDate;
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
@@ -33,14 +36,13 @@ void handleHTTPRequest() {
   Serial.println("HTTP Request");
 
   String s;
-
   s = "<!DOCTYPE HTML>\r\n<html>Hello from ";
-  s += WiFi.hostname() + " at " + WiFi.localIP().toString();
+  s += WiFi.hostname() + " at " + WiFi.localIP().toString() + "("+ ssid +")";
   // Simple addition of the current time
-  s += "\r\n<br>Current time is: ";
-  s += timeClient.getHours(); s += ":";
-  s +=timeClient.getMinutes(); s +=":";
-  s += timeClient.getSeconds();
+  s += "\r\n<br>Current date/time is: ";
+  s += daysOfTheWeek[timeClient.getDay()]; s += " ";
+  s += timeClient.getFormattedTime(); s += " ";
+  s += formDate;
   s += "</html>\r\n\r\n";
   Serial.println("Sending 200");
   server.send(200, "text/html", s);
@@ -55,14 +57,28 @@ void testdrawstyles(void) {
   display.println(daysOfTheWeek[timeClient.getDay()]);
   display.println();
   display.setTextSize(2);
-  if(timeClient.getHours()<10) display.print("0"); display.print(timeClient.getHours()); display.print(":");
-  if(timeClient.getMinutes()<10) display.print("0"); display.print(timeClient.getMinutes()); display.print(":");
-  if(timeClient.getSeconds()<10) display.print("0"); display.println(timeClient.getSeconds());
+  display.println(timeClient.getFormattedTime());
+  display.setTextSize(1);
+  display.println(formDate);
 
-  display.setTextSize(1); display.println(); display.println(); display.println(WiFi.localIP());
-  display.setTextSize(1); display.print("wifi: "); display.println(ssid);
+  display.setTextSize(1); display.println(); display.println(); display.print(WiFi.localIP());
+  display.setTextSize(1); display.print(" ("); display.print(ssid); display.println(")");
   
   display.display();
+}
+
+void convertdate(void){
+  time_t t = timeClient.getEpochTime();
+  tm* dt = gmtime(&t);
+  dt->tm_isdst = 0;
+  years = dt->tm_year + 1900;
+  months = dt->tm_mon + 1;
+  days = dt->tm_mday;
+
+  formDate = "";
+  if(days<10) formDate = "0"; formDate += String(days); formDate += "-";
+  if(months<10) formDate += "0"; formDate += String(months); formDate += "-";
+  formDate += String(years);
 }
 
 void setup(){
@@ -73,6 +89,7 @@ void setup(){
   }
 
   timeClient.begin();
+  convertdate();
 
   // Setup HTTP server
   server.on("/", handleHTTPRequest);
@@ -94,16 +111,14 @@ void loop() {
   server.handleClient();
 
   timeClient.update();
+  convertdate();
   testdrawstyles();    // Draw 'stylized' characters
 
   Serial.print(daysOfTheWeek[timeClient.getDay()]);
   Serial.print(", ");
-  Serial.print(timeClient.getHours());
-  Serial.print(":");
-  Serial.print(timeClient.getMinutes());
-  Serial.print(":");
-  Serial.println(timeClient.getSeconds());
-  //Serial.println(timeClient.getFormattedTime());
+  Serial.print(timeClient.getFormattedTime());
+  Serial.print(", ");
+  Serial.println(formDate);
 
   delay(1000);
 }
