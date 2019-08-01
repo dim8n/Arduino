@@ -15,9 +15,11 @@
 #define OLED_RESET LED_BUILTIN    //4  Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+//const char *ssid     = "HGTP";
+//const char *password = "45674321";
 
-const char *ssid     = "HGTP";
-const char *password = "45674321";
+const char *ssid     = "NG-MT";
+const char *password = "7680050813";
 
 const long utcOffsetInSeconds = 3*3600;
 #define UPDATE_CYCLE        (1 * 1000)
