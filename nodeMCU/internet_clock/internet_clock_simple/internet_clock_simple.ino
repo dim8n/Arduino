@@ -38,14 +38,16 @@ void handleHTTPRequest() {
   Serial.println("HTTP Request");
 
   String s;
-  s = "<!DOCTYPE HTML>\r\n<html>Hello from ";
+  s = "<!DOCTYPE HTML>\r\n";
+  s += "<head>\n\t<title>Simple Internet clock</title>\n\t<meta http-equiv='refresh' content='5' />\n</head>\n";
+  s += "<html>\n\tHello from ";
   s += WiFi.hostname() + " at " + WiFi.localIP().toString() + "("+ ssid +")";
   // Simple addition of the current time
-  s += "\r\n<br>Current date/time is: ";
+  s += "<br>\r\n\tCurrent date/time is: ";
   s += daysOfTheWeek[timeClient.getDay()]; s += " ";
   s += timeClient.getFormattedTime(); s += " ";
   s += formDate;
-  s += "</html>\r\n\r\n";
+  s += "\n</html>\r\n\r\n";
   Serial.println("Sending 200");
   server.send(200, "text/html", s);
 }
@@ -55,16 +57,14 @@ void testdrawstyles(void) {
   display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
   
-  display.setTextSize(1);
-  display.print(daysOfTheWeek[timeClient.getDay()]);
-  //display.println();
-  display.setCursor(16,12); display.setTextSize(2); display.print(timeClient.getFormattedTime());
-  display.setCursor(32,30); display.setTextSize(1); display.println(formDate);
+  display.setTextSize(1); display.print(daysOfTheWeek[timeClient.getDay()]);      // displaying day of week
+  display.setCursor(16,12); display.setTextSize(2); display.print(timeClient.getFormattedTime());     // displaying time
+  display.setCursor(32,30); display.setTextSize(1); display.println(formDate);      // displaying date
 
-  display.setTextSize(1); display.println(); display.println(); display.print(WiFi.localIP());
+  display.setTextSize(1); display.println(); display.println(); display.print(WiFi.localIP());  // displaying wi-fi info
   display.setTextSize(1); display.print(" ("); display.print(ssid); display.println(")");
   
-  display.display();
+  display.display();    // draw display buffer
 }
 
 void convertdate(void){
