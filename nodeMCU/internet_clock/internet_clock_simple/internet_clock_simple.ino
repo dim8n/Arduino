@@ -56,12 +56,10 @@ void testdrawstyles(void) {
   display.setCursor(0,0);             // Start at top-left corner
   
   display.setTextSize(1);
-  display.println(daysOfTheWeek[timeClient.getDay()]);
-  display.println();
-  display.setTextSize(2);
-  display.println(timeClient.getFormattedTime());
-  display.setTextSize(1);
-  display.println(formDate);
+  display.print(daysOfTheWeek[timeClient.getDay()]);
+  //display.println();
+  display.setCursor(16,12); display.setTextSize(2); display.print(timeClient.getFormattedTime());
+  display.setCursor(32,30); display.setTextSize(1); display.println(formDate);
 
   display.setTextSize(1); display.println(); display.println(); display.print(WiFi.localIP());
   display.setTextSize(1); display.print(" ("); display.print(ssid); display.println(")");
