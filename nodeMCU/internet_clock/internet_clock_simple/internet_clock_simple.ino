@@ -55,13 +55,13 @@ void handleHTTPRequest() {
 void display_on_display(void) {
   display.clearDisplay();
   display.setTextColor(WHITE);        // Draw white text
-  display.setCursor(42,0);             // Start at top-left corner
   
-  display.setTextSize(1); display.print(daysOfTheWeek[timeClient.getDay()]);      // displaying day of week
-  display.setCursor(16,12); display.setTextSize(2); display.print(timeClient.getFormattedTime());     // displaying time
-  display.setCursor(32,30); display.setTextSize(1); display.println(formDate);      // displaying date
+  display.setCursor(10,0); display.setTextSize(1); display.print(daysOfTheWeek[timeClient.getDay()]); display.print(" \/ "); display.println(formDate);     // displaying day of week and date
+  display.setCursor(16,14); display.setTextSize(2,5); display.print(timeClient.getFormattedTime());     // displaying time
+  //display.setCursor(0,14); display.setTextSize(3,5); display.print(timeClient.getFormattedTime());     // displaying time
+  //display.setCursor(32,30); display.setTextSize(1);       // displaying date
 
-  display.setTextSize(1); display.println(); display.println(); display.print(WiFi.localIP());  // displaying wi-fi info
+  display.setCursor(0,56); display.setTextSize(1); display.print(WiFi.localIP());  // displaying wi-fi info
   display.setTextSize(1); display.print(" ("); display.print(ssid); display.println(")");
   
   display.display();    // draw display buffer
