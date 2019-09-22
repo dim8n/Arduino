@@ -52,10 +52,10 @@ void handleHTTPRequest() {
   server.send(200, "text/html", s);
 }
 
-void testdrawstyles(void) {
+void display_on_display(void) {
   display.clearDisplay();
   display.setTextColor(WHITE);        // Draw white text
-  display.setCursor(0,0);             // Start at top-left corner
+  display.setCursor(42,0);             // Start at top-left corner
   
   display.setTextSize(1); display.print(daysOfTheWeek[timeClient.getDay()]);      // displaying day of week
   display.setCursor(16,12); display.setTextSize(2); display.print(timeClient.getFormattedTime());     // displaying time
@@ -103,7 +103,7 @@ void setup(){
     for(;;); // Don't proceed, loop forever
   }
   display.clearDisplay();
-  testdrawstyles();    // Draw 'stylized' characters
+  display_on_display();    // Draw 'stylized' characters
 }
 
 void loop() {
@@ -112,7 +112,7 @@ void loop() {
 
   timeClient.update();
   convertdate();
-  testdrawstyles();    // Draw 'stylized' characters
+  display_on_display();    // Draw 'stylized' characters
 
   Serial.print(daysOfTheWeek[timeClient.getDay()]);
   Serial.print(", ");
