@@ -24,7 +24,8 @@ const char *password = "7680050813";
 const long utcOffsetInSeconds = 3*3600;
 #define UPDATE_CYCLE        (1 * 1000)
 
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+//char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 int days, months, years;
 String formDate;
 
@@ -56,7 +57,7 @@ void display_on_display(void) {
   display.clearDisplay();
   display.setTextColor(WHITE);        // Draw white text
   
-  display.setCursor(10,0); display.setTextSize(1); display.print(daysOfTheWeek[timeClient.getDay()]); display.print(" \/ "); display.println(formDate);     // displaying day of week and date
+  display.setCursor(15,0); display.setTextSize(1); display.print(daysOfTheWeek[timeClient.getDay()]); display.print(" \/ "); display.println(formDate);     // displaying day of week and date
   display.setCursor(16,14); display.setTextSize(2,5); display.print(timeClient.getFormattedTime());     // displaying time
   //display.setCursor(0,14); display.setTextSize(3,5); display.print(timeClient.getFormattedTime());     // displaying time
   //display.setCursor(32,30); display.setTextSize(1);       // displaying date
