@@ -63,7 +63,7 @@ void display_on_display(void) {
   //display.setCursor(32,30); display.setTextSize(1);       // displaying date
 
   display.setCursor(0,56); display.setTextSize(1); display.print(WiFi.localIP());  // displaying wi-fi info
-  display.setTextSize(1); display.print(" ("); display.print(ssid); display.println(")");
+  display.setTextSize(1); display.print(" ("); display.print(ssid); display.print(")");
   
   display.display();    // draw display buffer
 }
