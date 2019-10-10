@@ -49,10 +49,11 @@ void showVoltage()
         timeStamp = millis();
         uint16_t v = analogRead(ADC_PIN);
         float battery_voltage = ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
-        String voltage = "Napruga :" + String(battery_voltage) + "V";
+        String voltage = "V = " + String(battery_voltage) + "V";
         Serial.println(voltage);
         tft.fillScreen(TFT_BLACK);
         tft.setTextDatum(MC_DATUM);
+        tft.setTextSize(2);
         tft.drawString(voltage,  tft.width() / 2, tft.height() / 2 );
     }
 }
@@ -75,13 +76,13 @@ void button_init()
         esp_deep_sleep_start();
     });
     btn1.setPressedHandler([](Button2 & b) {
-        Serial.println("Detect Voltage..");
+        Serial.println("\nDetect Voltage..");
         btnCick = true;
     });
 
     btn2.setPressedHandler([](Button2 & b) {
         btnCick = false;
-        Serial.println("btn press wifi scan");
+        Serial.println("\nbtn press wifi scan");
         wifi_scan();
     });
 }
@@ -97,9 +98,9 @@ void wifi_scan()
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
     tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(1);
+    tft.setTextSize(2);
 
-    tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);
+    tft.drawString("Scan WiFi", tft.width() / 2, tft.height() / 2);
 
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
@@ -119,6 +120,7 @@ void wifi_scan()
                     i + 1,
                     WiFi.SSID(i).c_str(),
                     WiFi.RSSI(i));
+            tft.setTextSize(2);
             tft.println(buff);
             Serial.println(buff);
         }
@@ -131,7 +133,7 @@ void setup()
     Serial.begin(115200);
     Serial.println("Start");
     tft.init();
-    tft.setRotation(1);
+    tft.setRotation(3);
     tft.fillScreen(TFT_BLACK);
     tft.setTextSize(2);
     tft.setTextColor(TFT_WHITE);
@@ -146,9 +148,9 @@ void setup()
 
     tft.setSwapBytes(true);
     tft.pushImage(0, 0,  240, 135, ttgo);
-    espDelay(5000);
+    //espDelay(1000);
 
-    tft.setRotation(0);
+    tft.setRotation(3);
     //int i = 5;
     //while (i--) {
     //    tft.fillScreen(TFT_RED);
