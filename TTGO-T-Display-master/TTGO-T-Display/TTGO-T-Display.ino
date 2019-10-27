@@ -49,7 +49,7 @@ void showVoltage()
         timeStamp = millis();
         uint16_t v = analogRead(ADC_PIN);
         float battery_voltage = ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
-        String voltage = "Napruga :" + String(battery_voltage) + "V";
+        String voltage = "V = " + String(battery_voltage) + "V";
         Serial.println(voltage);
         tft.fillScreen(TFT_BLACK);
         tft.setTextDatum(MC_DATUM);
@@ -75,13 +75,13 @@ void button_init()
         esp_deep_sleep_start();
     });
     btn1.setPressedHandler([](Button2 & b) {
-        Serial.println("Detect Voltage..");
+        Serial.println("\nDetect Voltage..");
         btnCick = true;
     });
 
     btn2.setPressedHandler([](Button2 & b) {
         btnCick = false;
-        Serial.println("btn press wifi scan");
+        Serial.println("\nbtn press wifi scan");
         wifi_scan();
     });
 }
@@ -97,7 +97,7 @@ void wifi_scan()
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
     tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(1);
+    //tft.setTextSize(2);
 
     tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);
 
@@ -131,13 +131,13 @@ void setup()
     Serial.begin(115200);
     Serial.println("Start");
     tft.init();
-    tft.setRotation(1);
+    tft.setRotation(3);
     tft.fillScreen(TFT_BLACK);
     tft.setTextSize(2);
     tft.setTextColor(TFT_WHITE);
     tft.setCursor(0, 0);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(1);
+    //tft.setTextSize(1);
 
     if (TFT_BL > 0) { // TFT_BL has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
          pinMode(TFT_BL, OUTPUT); // Set backlight pin to output mode
@@ -145,21 +145,21 @@ void setup()
     }
 
     tft.setSwapBytes(true);
-    tft.pushImage(0, 0,  240, 135, ttgo);
-    espDelay(5000);
-
-    tft.setRotation(0);
-    //int i = 5;
-    //while (i--) {
-    //    tft.fillScreen(TFT_RED);
-    //    espDelay(1000);
-    //   tft.fillScreen(TFT_BLUE);
-    //    espDelay(1000);
-    //    tft.fillScreen(TFT_GREEN);
-    //    espDelay(1000);
-    //}
-
     button_init();
+    tft.pushImage(0, 0,  240, 135, ttgo);
+    espDelay(1000);
+    showVoltage();
+
+    tft.setRotation(3);
+    /*int i = 5;
+    while (i--) {
+        tft.fillScreen(TFT_RED);
+        espDelay(1000);
+        tft.fillScreen(TFT_BLUE);
+        espDelay(1000);
+        tft.fillScreen(TFT_GREEN);
+        espDelay(1000);
+    }*/
 
     esp_adc_cal_characteristics_t adc_chars;
     esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
