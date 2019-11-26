@@ -1,9 +1,13 @@
-#include <TFT_eSPI.h>#include <SPI.h>
+#include <TFT_eSPI.h>
+#include <SPI.h>
 #include "WiFi.h"
 #include <Wire.h>
 #include <Button2.h>
 #include "esp_adc_cal.h"
 #include "bmp.h"
+#include <NTPClient.h>
+#include <time.h>
+#include <WiFiUdp.h>
 
 #ifndef TFT_DISPOFF
 #define TFT_DISPOFF 0x28
@@ -25,6 +29,18 @@
 #define BUTTON_1        35
 #define BUTTON_2        0
 
+const char *ssid     = "NG-MT";
+const char *password = "7680050813";
+
+const long utcOffsetInSeconds = 3*3600;
+char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+int days, months, years;
+String formDate;
+
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 Button2 btn1(BUTTON_1);
 Button2 btn2(BUTTON_2);
@@ -32,6 +48,7 @@ Button2 btn2(BUTTON_2);
 char buff[512];
 int vref = 1100;
 int btnCick = false;
+String voltage = "";
 
 //! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 void espDelay(int ms)
@@ -41,54 +58,29 @@ void espDelay(int ms)
     esp_light_sleep_start();
 }
 
-void showVoltage()
+void getVoltage()
 {
     static uint64_t timeStamp = 0;
     if (millis() - timeStamp > 1000) {
         timeStamp = millis();
         uint16_t v = analogRead(ADC_PIN);
         float battery_voltage = ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
-        String voltage = "V = " + String(battery_voltage) + "V";
-        Serial.println(voltage);
-        tft.fillScreen(TFT_BLACK);
-        tft.setTextDatum(MC_DATUM);
-        tft.drawString(voltage,  tft.width() / 2, tft.height() / 2 );
+        voltage = String(battery_voltage) + "V";
     }
 }
 
-void button_init()
-{
-    btn1.setLongClickHandler([](Button2 & b) {
-        btnCick = false;
-        int r = digitalRead(TFT_BL);
-        tft.fillScreen(TFT_BLACK);
-        tft.setTextColor(TFT_GREEN, TFT_BLACK);
-        tft.setTextDatum(MC_DATUM);
-        tft.drawString("Press again to wake up",  tft.width() / 2, tft.height() / 2 );
-        espDelay(6000);
-        digitalWrite(TFT_BL, !r);
+void convertdate(void){
+  time_t t = timeClient.getEpochTime();
+  tm* dt = gmtime(&t);
+  dt->tm_isdst = 0;
+  years = dt->tm_year + 1900;
+  months = dt->tm_mon + 1;
+  days = dt->tm_mday;
 
-        tft.writecommand(TFT_DISPOFF);
-        tft.writecommand(TFT_SLPIN);
-        esp_sleep_enable_ext1_wakeup(GPIO_SEL_35, ESP_EXT1_WAKEUP_ALL_LOW);
-        esp_deep_sleep_start();
-    });
-    btn1.setPressedHandler([](Button2 & b) {
-        Serial.println("\nDetect Voltage..");
-        btnCick = true;
-    });
-
-    btn2.setPressedHandler([](Button2 & b) {
-        btnCick = false;
-        Serial.println("\nbtn press wifi scan");
-        wifi_scan();
-    });
-}
-
-void button_loop()
-{
-    btn1.loop();
-    btn2.loop();
+  formDate = "";
+  if(days<10) formDate = "0"; formDate += String(days); formDate += "-";
+  if(months<10) formDate += "0"; formDate += String(months); formDate += "-";
+  formDate += String(years);
 }
 
 void wifi_scan()
@@ -96,7 +88,7 @@ void wifi_scan()
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
     tft.fillScreen(TFT_BLACK);
     tft.setTextDatum(MC_DATUM);
-    //tft.setTextSize(2);
+    tft.setTextSize(1);
 
     tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);
 
@@ -125,10 +117,66 @@ void wifi_scan()
     WiFi.mode(WIFI_OFF);
 }
 
+void mainScreen()
+{
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    getVoltage();
+    tft.drawString(voltage, 0, 0);
+    
+    tft.setTextSize(4);
+    tft.drawString(timeClient.getFormattedTime(),  tft.width() / 2, tft.height() / 2 );
+    //tft.drawString("23:59:59",  tft.width() / 2, tft.height() / 2 );
+    //tft.drawString(formDate,  tft.width() / 2, tft.height() / 2 );
+}
+
+void button_init()
+{
+    btn1.setLongClickHandler([](Button2 & b) {
+        btnCick = false;
+        int r = digitalRead(TFT_BL);
+        tft.fillScreen(TFT_BLACK);
+        tft.setTextColor(TFT_GREEN, TFT_BLACK);
+        tft.setTextDatum(MC_DATUM);
+        tft.drawString("Press again to wake up",  tft.width() / 2, tft.height() / 2 );
+        espDelay(6000);
+        digitalWrite(TFT_BL, !r);
+
+        tft.writecommand(TFT_DISPOFF);
+        tft.writecommand(TFT_SLPIN);
+        esp_sleep_enable_ext1_wakeup(GPIO_SEL_35, ESP_EXT1_WAKEUP_ALL_LOW);
+        esp_deep_sleep_start();
+    });
+    btn1.setPressedHandler([](Button2 & b) {
+        Serial.println("\nDetect Voltage..");
+        tft.fillScreen(TFT_BLACK);
+        btnCick = true;
+    });
+
+    btn2.setPressedHandler([](Button2 & b) {
+        btnCick = false;
+        Serial.println("\nbtn press wifi scan");
+        tft.fillScreen(TFT_BLACK);
+        wifi_scan();
+    });
+}
+
+void button_loop()
+{
+    btn1.loop();
+    btn2.loop();
+}
+
 void setup()
 {
     Serial.begin(115200);
     Serial.println("Start");
+    WiFi.begin(ssid, password);
+    while ( WiFi.status() != WL_CONNECTED ) {
+      delay (500); Serial.print (".");
+    }
+
     tft.init();
     tft.setRotation(3);
     tft.fillScreen(TFT_BLACK);
@@ -147,18 +195,21 @@ void setup()
     button_init();
     tft.pushImage(0, 0,  240, 135, ttgo);
     espDelay(1000);
-    showVoltage();
+    tft.fillScreen(TFT_BLACK);
+
+    getVoltage();
+
+    WiFi.begin(ssid, password);
+    while ( WiFi.status() != WL_CONNECTED ) {
+      delay (500); Serial.print (".");
+    }
+
+    timeClient.begin();
+    convertdate();
+
+    mainScreen();
 
     tft.setRotation(3);
-    /*int i = 5;
-    while (i--) {
-        tft.fillScreen(TFT_RED);
-        espDelay(1000);
-        tft.fillScreen(TFT_BLUE);
-        espDelay(1000);
-        tft.fillScreen(TFT_GREEN);
-        espDelay(1000);
-    }*/
 
     esp_adc_cal_characteristics_t adc_chars;
     esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
@@ -178,7 +229,7 @@ void setup()
 void loop()
 {
     if (btnCick) {
-        showVoltage();
+        mainScreen();
     }
     button_loop();
 }
