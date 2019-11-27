@@ -29,8 +29,12 @@
 #define BUTTON_1        35
 #define BUTTON_2        0
 
-const char *ssid     = "NG-MT";
-const char *password = "7680050813";
+//const char *ssid     = "NG-MT";
+//const char *password = "7680050813";
+
+const char *ssid     = "HUAWEI-K05";
+const char *password = "194419491983";
+
 
 const long utcOffsetInSeconds = 3*3600;
 char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
@@ -78,57 +82,31 @@ void convertdate(void){
   days = dt->tm_mday;
 
   formDate = "";
-  if(days<10) formDate = "0"; formDate += String(days); formDate += "-";
-  if(months<10) formDate += "0"; formDate += String(months); formDate += "-";
+  if(days<10) formDate = "0"; formDate += String(days); formDate += "/";
+  if(months<10) formDate += "0"; formDate += String(months); formDate += "/";
   formDate += String(years);
-}
-
-void wifi_scan()
-{
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.fillScreen(TFT_BLACK);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextSize(1);
-
-    tft.drawString("Scan Network", tft.width() / 2, tft.height() / 2);
-
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);
-
-    int16_t n = WiFi.scanNetworks();
-    tft.fillScreen(TFT_BLACK);
-    if (n == 0) {
-        tft.drawString("no networks found", tft.width() / 2, tft.height() / 2);
-    } else {
-        tft.setTextDatum(TL_DATUM);
-        tft.setCursor(0, 0);
-        Serial.printf("Found %d net\n", n);
-        for (int i = 0; i < n; ++i) {
-            sprintf(buff,
-                    "[%d]:%s(%d)",
-                    i + 1,
-                    WiFi.SSID(i).c_str(),
-                    WiFi.RSSI(i));
-            tft.println(buff);
-            Serial.println(buff);
-        }
-    }
-    WiFi.mode(WIFI_OFF);
 }
 
 void mainScreen()
 {
     tft.setTextDatum(MC_DATUM);
     tft.setTextSize(2);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     getVoltage();
     tft.drawString(voltage, 0, 0);
     
     tft.setTextSize(4);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
     tft.drawString(timeClient.getFormattedTime(),  tft.width() / 2, tft.height() / 2 );
-    //tft.drawString("23:59:59",  tft.width() / 2, tft.height() / 2 );
-    //tft.drawString(formDate,  tft.width() / 2, tft.height() / 2 );
+
+    tft.setTextSize(3);
+    tft.setTextColor(TFT_RED, TFT_BLACK);
+    tft.drawString(formDate,  tft.width() / 2, tft.height() - 10 );
+}
+
+void secondScreen()
+{
+  tft.fillScreen(TFT_BLACK);
 }
 
 void button_init()
@@ -158,7 +136,7 @@ void button_init()
         btnCick = false;
         Serial.println("\nbtn press wifi scan");
         tft.fillScreen(TFT_BLACK);
-        wifi_scan();
+        secondScreen();
     });
 }
 
@@ -200,11 +178,12 @@ void setup()
     getVoltage();
 
     WiFi.begin(ssid, password);
-    while ( WiFi.status() != WL_CONNECTED ) {
+    while (WiFi.status() != WL_CONNECTED)  {
       delay (500); Serial.print (".");
     }
 
     timeClient.begin();
+    timeClient.update();
     convertdate();
 
     mainScreen();
@@ -228,8 +207,9 @@ void setup()
 
 void loop()
 {
-    if (btnCick) {
-        mainScreen();
-    }
-    button_loop();
+    //if (btnCick) {
+    //    mainScreen();
+    //}
+    //button_loop();
+    mainScreen();
 }
