@@ -97,13 +97,13 @@ void mainScreen()
     getVoltage();
     tft.drawString(voltage, 0, 0);
     
-    tft.setTextSize(4);
+    tft.setTextSize(5);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.drawString(timeClient.getFormattedTime(),  tft.width() / 2, tft.height() / 2 );
+    tft.drawString(timeClient.getFormattedTime(),  tft.width() / 2, tft.height() / 2 - 20);
 
     tft.setTextSize(3);
     tft.setTextColor(TFT_RED, TFT_BLACK);
-    tft.drawString(formDate,  tft.width() / 2, tft.height() - 10 );
+    tft.drawString(formDate,  tft.width() / 2, tft.height() / 2 + 20);
 }
 
 void secondScreen()
