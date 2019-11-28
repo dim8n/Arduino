@@ -32,9 +32,11 @@
 //const char *ssid     = "NG-MT";
 //const char *password = "7680050813";
 
-const char *ssid     = "HUAWEI-K05";
-const char *password = "194419491983";
+//const char *ssid     = "HUAWEI-K05";
+//const char *password = "194419491983";
 
+const char *ssid     = "HGTP";
+const char *password = "45674321";
 
 const long utcOffsetInSeconds = 3*3600;
 char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
