@@ -29,17 +29,17 @@
 #define BUTTON_1        35
 #define BUTTON_2        0
 
-//const char *ssid     = "NG-MT";
-//const char *password = "7680050813";
+const char *ssid     = "NG-MT";
+const char *password = "7680050813";
 
 //const char *ssid     = "HUAWEI-K05";
 //const char *password = "194419491983";
 
-const char *ssid     = "HGTP";
-const char *password = "45674321";
+//const char *ssid     = "HGTP";
+//const char *password = "45674321";
 
 const long utcOffsetInSeconds = 3*3600;
-char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+char daysOfTheWeek[7][12] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
 int days, months, years;
 String formDate;
 
@@ -91,18 +91,21 @@ void convertdate(void){
 
 void mainScreen()
 {
-    tft.setTextDatum(MC_DATUM);
+    tft.setTextDatum(MC_DATUM);  // отображение даты
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     getVoltage();
     tft.drawString(voltage, 0, 0);
+
+    tft.setTextColor(TFT_GREEN, TFT_BLACK); // отображение дня недели
+    tft.drawString(daysOfTheWeek[timeClient.getDay()], tft.width() - 20, 0);
     
     tft.setTextSize(5);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK); // отображение времени
     tft.drawString(timeClient.getFormattedTime(),  tft.width() / 2, tft.height() / 2 - 20);
 
     tft.setTextSize(3);
-    tft.setTextColor(TFT_RED, TFT_BLACK);
+    tft.setTextColor(TFT_RED, TFT_BLACK); // отображение даты
     tft.drawString(formDate,  tft.width() / 2, tft.height() / 2 + 20);
 }
 
