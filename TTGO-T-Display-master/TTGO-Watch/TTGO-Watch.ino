@@ -95,7 +95,7 @@ void mainScreen()
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     getVoltage();
-    tft.drawString(voltage, 0, 0);
+    tft.drawString(voltage, 0, 0);  //отображение напряжения питания
 
     tft.setTextColor(TFT_GREEN, TFT_BLACK); // отображение дня недели
     tft.drawString(daysOfTheWeek[timeClient.getDay()], tft.width() - 20, 0);
@@ -155,10 +155,6 @@ void setup()
 {
     Serial.begin(115200);
     Serial.println("Start");
-    WiFi.begin(ssid, password);
-    while ( WiFi.status() != WL_CONNECTED ) {
-      delay (500); Serial.print (".");
-    }
 
     tft.init();
     tft.setRotation(3);
