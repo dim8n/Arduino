@@ -107,6 +107,10 @@ void mainScreen()
     tft.setTextSize(3);
     tft.setTextColor(TFT_RED, TFT_BLACK); // отображение даты
     tft.drawString(formDate,  tft.width() / 2, tft.height() / 2 + 20);
+
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_ORANGE, TFT_BLACK); // нижняя строка
+    tft.drawString("Some text string", tft.width() / 2, tft.height());
 }
 
 void secondScreen()
