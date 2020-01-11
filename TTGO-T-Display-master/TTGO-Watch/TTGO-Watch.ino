@@ -29,17 +29,12 @@
 #define BUTTON_1        35
 #define BUTTON_2        0
 
-const char *ssid     = "NG-MT";
-const char *password = "7680050813";
-
-//const char *ssid     = "HUAWEI-K05";
-//const char *password = "194419491983";
-
-//const char *ssid     = "HGTP";
-//const char *password = "45674321";
+char ssid[4][20] = {"dd-wrt","NG-MT","HUAWEI-K05","HGTP"};
+char password[4][20] = {"7680050813","7680050813","194419491983","45674321"};
+int wifiselect = 0;
 
 const long utcOffsetInSeconds = 3*3600;
-char daysOfTheWeek[7][12] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+char daysOfTheWeek[7][4] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
 int days, months, years;
 String formDate;
 
@@ -110,7 +105,7 @@ void mainScreen()
 
     tft.setTextSize(2);
     tft.setTextColor(TFT_ORANGE, TFT_BLACK); // нижняя строка
-    tft.drawString("Some text string", tft.width() / 2, tft.height());
+    tft.drawString("WiFi is "+WiFi.SSID(), tft.width() / 2, tft.height());
 }
 
 void secondScreen()
@@ -179,13 +174,29 @@ void setup()
     tft.pushImage(0, 0,  240, 135, ttgo);
     espDelay(1000);
     tft.fillScreen(TFT_BLACK);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK); // строка перед подключением к сети
 
     getVoltage();
-
-    WiFi.begin(ssid, password);
+    
+    int i = 0;
+    //WiFi.begin(ssid[wifiselect], password[wifiselect]);
+    //delay (1000);
+    Serial.print (".");
     while (WiFi.status() != WL_CONNECTED)  {
-      delay (500); Serial.print (".");
-    }
+        Serial.println("\nTrying to connect "+String(ssid[wifiselect])+"\n");
+        WiFi.begin(ssid[wifiselect], password[wifiselect]);
+        tft.fillScreen(TFT_BLACK);
+        tft.drawString(ssid[wifiselect],  tft.width() / 2, tft.height() / 2);
+        //tft.drawString(String(i),  tft.width() / 2, tft.height() / 2);
+        delay (5000); Serial.print (".");
+        if (WiFi.status() != WL_CONNECTED) wifiselect++;
+          i++;
+          if(i>=4) break;
+       } 
+    Serial.println("\nConnect OK!!!");
+    
+    tft.fillScreen(TFT_BLACK);
 
     timeClient.begin();
     timeClient.update();
@@ -195,17 +206,17 @@ void setup()
 
     tft.setRotation(3);
 
-    esp_adc_cal_characteristics_t adc_chars;
-    esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
+    //esp_adc_cal_characteristics_t adc_chars;
+    //esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
     //Check type of calibration value used to characterize ADC
-    if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-        Serial.printf("eFuse Vref:%u mV", adc_chars.vref);
-        vref = adc_chars.vref;
-    } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-        Serial.printf("Two Point --> coeff_a:%umV coeff_b:%umV\n", adc_chars.coeff_a, adc_chars.coeff_b);
-    } else {
-        Serial.println("Default Vref: 1100mV");
-    }
+    //if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
+    //    Serial.printf("eFuse Vref:%u mV", adc_chars.vref);
+    //    vref = adc_chars.vref;
+    //} else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
+    //    Serial.printf("Two Point --> coeff_a:%umV coeff_b:%umV\n", adc_chars.coeff_a, adc_chars.coeff_b);
+    //} else {
+    //    Serial.println("Default Vref: 1100mV");
+    //}
 }
 
 
