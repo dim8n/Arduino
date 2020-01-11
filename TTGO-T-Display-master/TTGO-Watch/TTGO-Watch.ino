@@ -182,18 +182,16 @@ void setup()
     int i = 0;
     //WiFi.begin(ssid[wifiselect], password[wifiselect]);
     //delay (1000);
-    Serial.print (".");
+    //Serial.print (".");
     while (WiFi.status() != WL_CONNECTED)  {
         Serial.println("\nTrying to connect "+String(ssid[wifiselect])+"\n");
         WiFi.begin(ssid[wifiselect], password[wifiselect]);
         tft.fillScreen(TFT_BLACK);
         tft.drawString(ssid[wifiselect],  tft.width() / 2, tft.height() / 2);
-        //tft.drawString(String(i),  tft.width() / 2, tft.height() / 2);
         delay (5000); Serial.print (".");
-        if (WiFi.status() != WL_CONNECTED) wifiselect++;
-          i++;
-          if(i>=4) break;
-       } 
+        i++;
+        if (i>5) {i=0; wifiselect++;}
+    } 
     Serial.println("\nConnect OK!!!");
     
     tft.fillScreen(TFT_BLACK);
