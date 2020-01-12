@@ -29,8 +29,8 @@
 #define BUTTON_1        35
 #define BUTTON_2        0
 
-char ssid[4][20] = {"dd-wrt","NG-MT","HUAWEI-K05","HGTP"};
-char password[4][20] = {"7680050813","7680050813","194419491983","45674321"};
+char ssid[5][30] = {"HUAWEI-K05","dd-wrt","iPhone (Dmitriy)","NG-MT","HGTP"};
+char password[5][30] = {"194419491983","7680050813","12348765","7680050813","45674321"};
 int wifiselect = 0;
 
 const long utcOffsetInSeconds = 3*3600;
@@ -188,9 +188,9 @@ void setup()
         WiFi.begin(ssid[wifiselect], password[wifiselect]);
         tft.fillScreen(TFT_BLACK);
         tft.drawString(ssid[wifiselect],  tft.width() / 2, tft.height() / 2);
-        delay (5000); Serial.print (".");
+        delay (5000); //Serial.print (".");
         i++;
-        if (i>5) {i=0; wifiselect++;}
+        if (i>1) {i=0; wifiselect++;} if(wifiselect > 5) break;
     } 
     Serial.println("\nConnect OK!!!");
     
