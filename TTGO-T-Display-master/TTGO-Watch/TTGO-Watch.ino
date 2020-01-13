@@ -29,8 +29,8 @@
 #define BUTTON_1        35
 #define BUTTON_2        0
 
-char ssid[5][30] = {"HUAWEI-K05","dd-wrt","iPhone (Dmitriy)","NG-MT","HGTP"};
-char password[5][30] = {"194419491983","7680050813","12348765","7680050813","45674321"};
+char ssid[5][30] = {"HGTP","HUAWEI-K05","dd-wrt","iPhone (Dmitriy)","NG-MT"};
+char password[5][30] = {"45674321","194419491983","7680050813","12348765","7680050813"};
 int wifiselect = 0;
 
 const long utcOffsetInSeconds = 3*3600;
