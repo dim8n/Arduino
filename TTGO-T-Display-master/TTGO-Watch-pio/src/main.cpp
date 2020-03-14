@@ -29,8 +29,8 @@
 #define BUTTON_1        35
 #define BUTTON_2        0
 
-char ssid[5][30] = {"iPhone (Dmitriy)","HGTP","HUAWEI-K05","dd-wrt","NG-MT"};
-char password[5][30] = {"12348765","45674321","194419491983","7680050813","7680050813"};
+char ssid[4][30] = {"iPhone (Dmitriy)","Keenetic","HUAWEI-K05","NG-MT"};
+char password[4][30] = {"12348765","7680050813","194419491983","7680050813"};
 int wifiselect = 0;
 
 const long utcOffsetInSeconds = 3*3600;
@@ -187,6 +187,7 @@ void setup()
         Serial.println("\nTrying to connect "+String(ssid[wifiselect])+"\n");
         WiFi.begin(ssid[wifiselect], password[wifiselect]);
         tft.fillScreen(TFT_BLACK);
+        tft.drawString("Trying to connect\n",  tft.width() / 2, tft.height() / 2 - 25);
         tft.drawString(ssid[wifiselect],  tft.width() / 2, tft.height() / 2);
         delay (5000); //Serial.print (".");
         i++;
